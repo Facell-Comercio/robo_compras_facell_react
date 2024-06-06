@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { Check, DollarSign, Download, EraserIcon, Filter } from "lucide-react"
 
 export const Header = () => {
-  const filters = useStoreCapturaGN().notasFiscais.filters;
+  const filters = useStoreCapturaGN(state => state.notasFiscais.filters);
   const setFilters = useStoreCapturaGN(state => state.setFiltersNotasFiscais)
   const clearFilters = useStoreCapturaGN(state => state.clearFiltersNotasFiscais)
 
@@ -44,11 +44,11 @@ export const Header = () => {
     }
   }
 
-  const handleDatasysClick = async ()=>{
+  const handleDatasysClick = async () => {
 
   }
 
-  const handleFinanceiroClick = async ()=>{
+  const handleFinanceiroClick = async () => {
 
   }
 
@@ -69,12 +69,24 @@ export const Header = () => {
         }}
       />
 
+      <Select value={filters.status || 'all'} onValueChange={(val: string) => { setFilters({ status: val }) }}>
+        <SelectTrigger>
+          <SelectValue placeholder="STATUS" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">TODOS STATUS</SelectItem>
+          <SelectItem value="PENDENTE DATASYS">PENDENTE DATASYS</SelectItem>
+          <SelectItem value="PENDENTE FINANCEIRO">PENDENTE FINANCEIRO</SelectItem>
+          <SelectItem value="OK">OK</SelectItem>
+        </SelectContent>
+      </Select>
+
       <Select value={filters.id_grupo_economico || 'all'} onValueChange={(val: string) => { setFilters({ id_grupo_economico: val }) }}>
         <SelectTrigger>
           <SelectValue placeholder="GRUPO ECONÔMICO" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">TODOS</SelectItem>
+          <SelectItem value="all">TODOS GRUPOS</SelectItem>
           <SelectItem value="1">FACELL</SelectItem>
           <SelectItem value="9">FORTTELECOM</SelectItem>
         </SelectContent>

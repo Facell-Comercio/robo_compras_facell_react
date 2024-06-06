@@ -12,10 +12,12 @@ type FormSelectProps = {
     name: string,
     placeholder?: string,
     options: SelectOption[]
+    disabled?: boolean
 }
 export const FormSelect = (props: FormSelectProps) => {
     return (
         <FormField
+            
             control={props.control}
             name={props.name}
             render={({ field }) => (
@@ -23,7 +25,7 @@ export const FormSelect = (props: FormSelectProps) => {
                     {props.label && <FormLabel>{props.label}</FormLabel>}
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger disabled={props?.disabled || false}>
                                 <SelectValue placeholder={props.placeholder || 'SELECIONE'} />
                             </SelectTrigger>
                         </FormControl>

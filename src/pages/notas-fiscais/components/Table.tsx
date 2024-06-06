@@ -32,7 +32,7 @@ type NotaFiscal = {
 
 export const Table = () => {
   const [pagination, setPagination] = useState<PaginationState>({pageIndex: 0, pageSize: 10})
-  const filters = useStoreCapturaGN().pedidos.filters;
+  const filters = useStoreCapturaGN().notasFiscais.filters;
   const { data, isLoading, isError } = useQuery({
     queryKey: ['notas_fiscais', pagination], 
     queryFn: ()=>getNotasFiscais({filters, pagination}),

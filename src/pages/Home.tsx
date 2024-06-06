@@ -6,7 +6,7 @@ import { PedidosPage } from "./pedidos/page";
 import { FaturadosPage } from "./faturados/page";
 
 const Home = () => {
-    return (<div className="grid gap-3 grid-cols-[calc(100%-50px)_40px] p-3 h-full w-full  ">
+    return (<div className="grid gap-3 grid-cols-[calc(100%-50px)_40px] p-3 h-[100%] w-full">
         <Tabs defaultValue="captura">
             <TabsList>
                 <TabsTrigger value="captura">Captura GN</TabsTrigger>

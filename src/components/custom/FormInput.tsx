@@ -8,6 +8,8 @@ type FormInputProps = {
     name: string,
     placeholder?: string,
     type?: 'text' | 'date' | 'number' | 'file'
+    disabled?: boolean
+    readOnly?:boolean
 }
 export const FormInput = (props: FormInputProps) => {
     return (
@@ -17,7 +19,12 @@ export const FormInput = (props: FormInputProps) => {
             render={({ field }) => (
                 <FormItem>
                     {props.label && <FormLabel>{props.label}</FormLabel>}
-                    <Input {...field} type={props.type || 'text'}/>
+                    <Input 
+                        disabled={props?.disabled || false}  
+                        readOnly={props?.readOnly || false}  
+                        {...field} 
+                        type={props.type || 'text'}
+                    />
                     <FormMessage />
                 </FormItem>
             )}

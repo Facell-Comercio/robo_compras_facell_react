@@ -1,9 +1,24 @@
+import { CapturaGNFilial, Filial } from '@/@types/filial';
 import { FeedbackItemProps } from '@/pages/captura-GN/components/FeedbackItem';
 import { subDays } from 'date-fns';
 import { DateRange } from 'react-day-picker';
 import { create } from 'zustand';
 
-type StateOptions = 'initial' | 'running';
+
+  type StatusOptions = 'initial' | 'running';
+
+  type StateCapturaGN = {
+    status: StatusOptions
+    filiais: CapturaGNFilial[],
+    id_grupo_economico?: string,
+    exibir_janela?: boolean,
+    data_inicial?: Date,
+    data_final?: Date,
+    token?: string,
+    rsa?: string
+  }
+
+
 
 type FiltersNotasFiscais = {
     range_data?: DateRange,
@@ -24,8 +39,10 @@ type FiltersFaturados = {
     id_grupo_economico?: string,
 }
 
+type UpdateGnFilial =  Filial & Partial<CapturaGNFilial>
+
 interface CapturaGNProps {
-    state: StateOptions,
+    state: StateCapturaGN,
     feedback:FeedbackItemProps[],
     notasFiscais: {
         filters: FiltersNotasFiscais,
@@ -38,7 +55,8 @@ interface CapturaGNProps {
     }
     
 
-    setState: (state:StateOptions) => void,
+    setState: (state:Partial<StateCapturaGN>) => void,
+
     pushFeedback: (fd:FeedbackItemProps)=>void,
     clearFeedback: ()=>void
 
@@ -50,9 +68,19 @@ interface CapturaGNProps {
 
     setFiltersFaturados: (filters:FiltersFaturados)=>void
     clearFiltersFaturados: ()=>void
+
+    updateGnFilial: (data:UpdateGnFilial)=>void
 }
 
 const initialFeedback = undefined;
+
+const initialFiltersNotasFiscais = {
+    range_data: {
+        from: subDays(new Date(), 30),
+        to: new Date()
+    }
+}
+
 const initialFiltersPedidos = {
     range_data: {
         from: subDays(new Date(), 30),
@@ -65,39 +93,46 @@ const initialFiltersFaturados = {
         to: new Date()
     }
 }
-const initialFiltersNotasFiscais = {
-    range_data: {
-        from: subDays(new Date(), 30),
-        to: new Date()
-    }
-}
 
 export const useStoreCapturaGN = create<CapturaGNProps>((set) => ({
-        state: 'initial',
+        state: {
+            status: 'initial',
+            filiais: [],
+        },
         feedback: initialFeedback || [],
         notasFiscais: {
-            filters: initialFiltersNotasFiscais
+            filters: {...initialFiltersNotasFiscais},
         },
         pedidos: {
-            filters: initialFiltersPedidos
+            filters: {...initialFiltersPedidos},
         },
         faturados: {
-            filters: initialFiltersFaturados
+            filters: {...initialFiltersFaturados},
         },
         
         
-        setState: (state) => {
-            set({ state: state })
+        setState: (newState) => {
+            set((prev)=>({ state: {...prev.state, ...newState} }))
         },
         pushFeedback: (fd:FeedbackItemProps)=>set((state)=>({ feedback: [...state.feedback, fd]})),
         clearFeedback: ()=>set({ feedback: [] }),
 
-        setFiltersNotasFiscais: (filters)=>{set(state=>({ notasFiscais: {...state.notasFiscais, filters: {...state.notasFiscais.filters, ...filters}} }))},
+        setFiltersNotasFiscais: (newFilters)=>set(state=>({ notasFiscais: {...state.notasFiscais, filters: {...state.notasFiscais.filters, ...newFilters}} })),
         clearFiltersNotasFiscais: ()=>set((state)=>({ notasFiscais: {...state.notasFiscais, filters: {...initialFiltersNotasFiscais}} })),
 
-        setFiltersPedidos: (filters)=>{set(state=>({ pedidos: {...state.pedidos, filters: {...state.pedidos.filters, ...filters}} }))},
+        setFiltersPedidos: (newFilters)=>set(state=>({ pedidos: {...state.pedidos, filters: {...state.pedidos.filters, ...newFilters}} })),
         clearFiltersPedidos: ()=>set((state)=>({ pedidos: {...state.pedidos, filters: {...initialFiltersPedidos}} })),
 
-        setFiltersFaturados: (filters)=>{set(state=>({ faturados: {...state.faturados, filters: {...state.faturados.filters, ...filters}} }))},
-        clearFiltersFaturados: ()=>set((state)=>({ faturados: {...state.faturados, filters: {...initialFiltersFaturados}} }))
+        setFiltersFaturados: (newFilters)=>set(state=>({ faturados: {...state.faturados, filters: {...state.faturados.filters, ...newFilters}} })),
+        clearFiltersFaturados: ()=>set((state)=>({ faturados: {...state.faturados, filters: {...initialFiltersFaturados}} })),
+
+        updateGnFilial(data) {
+            set(prev=>({
+                state: {...prev.state, filiais: prev.state.filiais.map((filial) =>
+                    filial.id === data.id ? { ...filial, ...data } : filial
+                  )}, 
+            }))
+        },
+    
+    
     }))

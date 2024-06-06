@@ -1,9 +1,12 @@
-import { app, BrowserWindow } from 'electron'
-// import { createRequire } from 'node:module'
+import { app, BrowserWindow, ipcMain } from 'electron'
+import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
+import { pupInit } from './pup'
+import { capturaGN } from './ngn/captura'
+import { prepareHandlers } from './handlers'
 
-// const require = createRequire(import.meta.url)
+const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // The built directory structure
@@ -37,7 +40,7 @@ function createWindow() {
   })
 
   // win.webContents.openDevTools();
-  
+
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
@@ -49,6 +52,8 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
+
+  prepareHandlers()
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -69,4 +74,6 @@ app.on('activate', () => {
   }
 })
 
-app.whenReady().then(createWindow)
+app.whenReady().then(()=>{
+  createWindow() 
+})

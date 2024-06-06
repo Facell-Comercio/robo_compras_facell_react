@@ -15,6 +15,6 @@ export const FeedbackItem = (props: FeedbackItemProps) => {
             break;
     }
     return (
-        <p className={`text-xs mb-2 ${textColor}`}>{props.text}</p>
+        <p className={`text-sm mb-2 ${textColor}`}>{props.text}</p>
     )
 }
