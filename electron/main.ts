@@ -1,12 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
-import { createRequire } from 'node:module'
+import { app, BrowserWindow } from 'electron'
+// import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { pupInit } from './pup'
-import { capturaGN } from './ngn/captura'
 import { prepareHandlers } from './handlers'
 
-const require = createRequire(import.meta.url)
+// const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // The built directory structure
@@ -36,7 +34,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.mjs'),
     },
     // autoHideMenuBar: true,
-    fullscreen: false
+    fullscreen: true
   })
 
   // win.webContents.openDevTools();

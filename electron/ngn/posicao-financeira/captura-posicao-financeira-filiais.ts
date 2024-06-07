@@ -1,5 +1,6 @@
 import { CapturaGNFilial } from '@/@types/filial';
-import { delay } from 'electron/helper/delay';
+import { TypeSender } from '@/@types/util';
+import { delay } from '../../../electron/helper/delay';
 import { Page } from 'puppeteer';
 
 export type CapturaPosicaoFinanceiraFilial = {
@@ -8,7 +9,7 @@ export type CapturaPosicaoFinanceiraFilial = {
     dataInicial: string,
     dataFinal: string,
 }
-export async function capturaPosicaoFinanceiraFiliais({
+export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
     page,
     filiais,
 }: CapturaPosicaoFinanceiraFilial) {
@@ -49,6 +50,8 @@ export async function capturaPosicaoFinanceiraFiliais({
                         return Array.from(columns, column => column.innerText);
                     });
                 });
+                front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${notasFiscais.length || 0} notas fiscais da ${f.nome}`})
+                front.send('UPDATE_FILIAL_GN', {...f, notas_fiscais: notasFiscais.length})
                 notasFiscais.push({
                     filial: f,
                     notasFiscais: notasFiscaisFilial

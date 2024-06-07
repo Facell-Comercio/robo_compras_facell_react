@@ -49,7 +49,7 @@ export const ParametrosGN = () => {
     const onSubmit = (data) => {
         console.log('onSubmit')
         const { token, exibir_janela } = data;
-        if(state.filiais.length === 0){
+        if (state.filiais.length === 0) {
             toast({
                 variant: 'destructive', title: 'Erro!', description: 'Não foi possível buscar as filiais, altere o grupo econônomico e tente novamente...'
             })
@@ -64,11 +64,12 @@ export const ParametrosGN = () => {
         localStorage.setItem('tokenTIM', token)
         localStorage.setItem('exibirJanelaGN', exibir_janela)
 
-        window.ipcRenderer.send('CAPTURA-GN-INIT', initialData)
+        window.ipcRenderer.send('START_GN', initialData)
         setState({ status: 'running' })
     }
 
     const handleClickParar = () => {
+        window.ipcRenderer.send('STOP_GN')
         setState({ status: 'initial' })
     }
 
@@ -100,13 +101,19 @@ export const ParametrosGN = () => {
     }, [id_grupo_economico])
 
     useEffect(() => {
-        window.ipcRenderer.on('UPDATE-GN-FILIAL', (event: any, data: any) => {
+        const handleStateGn = (event: Electron.IpcRendererEvent, data: any) => {
+            setState(data)
+        }
+        const handleUpdateFilialGn = (event: Electron.IpcRendererEvent, data: any) => {
             updateGnFilial(data)
-        })
+        }
+
+        window.ipcRenderer.on('STATE_GN', handleStateGn)
+        window.ipcRenderer.on('UPDATE_FILIAL_GN', handleUpdateFilialGn)
 
         return () => {
-            // @ts-ignore
-            window.ipcRenderer.off('UPDATE-GN-FILIAL', () => { })
+            window.ipcRenderer.off('STATE_GN', handleStateGn)
+            window.ipcRenderer.off('UPDATE_FILIAL_GN', handleUpdateFilialGn)
         }
     }, [])
 

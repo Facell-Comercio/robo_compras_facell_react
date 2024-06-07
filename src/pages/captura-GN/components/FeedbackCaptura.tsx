@@ -17,15 +17,14 @@ export const FeedbackCapturaGN = () => {
     const clearFeedback = useStoreCapturaGN().clearFeedback;
 
     useEffect(()=>{
-        window.ipcRenderer.on('FEEDBACK-GN', (event: any, data: any) => {
+        const handleFeedback = (event: Electron.IpcRendererEvent, data: any) => {
             pushFeedback(data)
-        })
+        }
+        window.ipcRenderer.on('FEEDBACK_GN', handleFeedback)
 
         return () => {
-            // @ts-ignore
-            window.ipcRenderer.off('FEEDBACK-GN', () => { })
+            window.ipcRenderer.off('FEEDBACK_GN', handleFeedback)
         }
-
     }, [])
 
     return (
@@ -35,7 +34,9 @@ export const FeedbackCapturaGN = () => {
             </CardHeader>
             <CardContent className="min-h-[200px] max-h-[300px] overflow-auto grid grid-rows-[1fr_auto] gap-3">
                 <ScrollArea className="flex-1 border">
-                    {feedback.map((feedback, index)=>(
+                    {
+                    feedback.length === 0 ? '...' :
+                    feedback?.map((feedback, index)=>(
                         <FeedbackItem key={index} type={feedback.type} text={feedback.text} />
                     ))}
                 </ScrollArea>

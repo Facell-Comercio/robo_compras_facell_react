@@ -1,5 +1,6 @@
 import { CapturaGNFilial } from '@/@types/filial';
-import { delay } from 'electron/helper/delay';
+import { TypeSender } from '@/@types/util';
+import { delay } from '../../../electron/helper/delay';
 import { Page } from 'puppeteer';
 
 export type CapturaFaturadosFilial = {
@@ -8,7 +9,7 @@ export type CapturaFaturadosFilial = {
     dataInicial: string,
     dataFinal: string,
 }
-export async function capturaFaturadosFiliais({
+export async function capturaFaturadosFiliais(front:TypeSender, {
     page,
     filiais,
     dataInicial,
@@ -61,6 +62,9 @@ export async function capturaFaturadosFiliais({
                         return Array.from(columns, column => column.innerText);
                     });
                 });
+                front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${faturadosFilial.length || 0} faturados da ${f.nome}`})
+                front.send('UPDATE_FILIAL_GN', {...f, faturados: faturadosFilial.length})
+
                 faturados.push({
                     filial: f,
                     faturados: faturadosFilial

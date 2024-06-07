@@ -39,7 +39,7 @@ type pupCloseProps = {
 }
 
 export async function pupClose({ browser, page }: pupCloseProps) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve) => {
         try {
             if(page){
                 await page.close();
@@ -50,7 +50,7 @@ export async function pupClose({ browser, page }: pupCloseProps) {
 
             resolve(true)
         } catch (error) {
-            reject(error)
+            resolve(true)
         }
     })
 }

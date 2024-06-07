@@ -3,7 +3,9 @@ import { CapturaGNFilial } from '@/@types/filial'
 import { pupClose, pupInit } from '../pup'
 import { loginGN } from './login'
 import { capturaPedidosFiliais } from './pedidos/captura-pedidos-filiais'
-import { BrowserWindow, Event, ipcMain } from 'electron'
+import { IpcMainEvent, ipcMain } from 'electron'
+import { capturaFaturadosFiliais } from './faturados/captura-faturados-filiais'
+import { capturaPosicaoFinanceiraFiliais } from './posicao-financeira/captura-posicao-financeira-filiais'
 
 type CapturaGN = {
     id_grupo_economico: string,
@@ -15,7 +17,7 @@ type CapturaGN = {
     data_final: Date,
 
 }
-export async function capturaGN(event: Event, {
+export async function capturaGN(event: IpcMainEvent, {
     exibir_janela = false,
     filiais,
     id_grupo_economico,
@@ -23,21 +25,25 @@ export async function capturaGN(event: Event, {
     data_inicial,
     data_final,
 }: CapturaGN) {
-    return new Promise(async (resolve, reject) => {
-        console.log('Dados recebidos', exibir_janela, id_grupo_economico, token, rsa, data_inicial, data_final)
-        console.log('Capturando GN...')
-        let processing = true
-        
-        ipcMain.on('STOP_GN', (event,_)=>{
-            processing = false
-        })
-        
-        let browser
-        let page
+    const front = event.sender;
+    // console.log('Dados recebidos', exibir_janela, id_grupo_economico, token, rsa, data_inicial, data_final)
+    // console.log('Capturando GN...')
+    let processing = true
+    let browser: any = undefined;
+    let page: any = undefined;
+
+    ipcMain.on('STOP_GN', async () => {
+        processing = false
+        front.send('FEEDBACK_GN', { type: 'info', text: 'Processo encerrado manualmente!' })
+        front.send('STATE_GN', { status: 'initial' })
+        await pupClose({ browser, page })
+    })
+
+    while (processing) {
+        if (!processing) break;
+
+
         try {
-            if(!win){
-                throw new Error('Não foi possível acessar o BrowserWindow')
-            }
             if (!id_grupo_economico) {
                 throw new Error('Grupo Econômico não informado!')
             }
@@ -55,7 +61,7 @@ export async function capturaGN(event: Event, {
             page = newPage;
 
             // Login no GN
-            await loginGN({ page, credenciais })
+            await loginGN(front, { page, credenciais })
 
             var dataInicialArray = data_inicial.toISOString().split('T')[0].split('-')
             var dataInicialFormatada = dataInicialArray[2] + '/' + dataInicialArray[1] + '/' + dataInicialArray[0]
@@ -63,20 +69,37 @@ export async function capturaGN(event: Event, {
             var dataFinalFormatada = dataFinalArray[2] + '/' + dataFinalArray[1] + '/' + dataFinalArray[0]
 
             // Captura de Pedidos
-            const pedidos = await capturaPedidosFiliais({
+            const pedidos = await capturaPedidosFiliais(front, {
                 filiais,
                 page,
                 dataInicial: dataInicialFormatada,
                 dataFinal: dataFinalFormatada
             })
+            front.send('FEEDBACK_GN', { type: 'success', message: 'Pedidos capturados!' })
 
-            win.webContents.send('FEEDBACK-GN', {type: 'success', message: 'Pedidos capturados!'})
-            console.log('Pedidos finais', pedidos)
+            // Captura de Faturados
+            const faturados = await capturaFaturadosFiliais(front, {
+                filiais,
+                page,
+                dataInicial: dataInicialFormatada,
+                dataFinal: dataFinalFormatada
+            })
+            front.send('FEEDBACK_GN', { type: 'success', message: 'Pedidos Faturados capturados!' })
+
+            // Captura de Posição Financeira
+            const notas_fiscais = await capturaPosicaoFinanceiraFiliais(front, {
+                filiais,
+                page,
+                dataInicial: dataInicialFormatada,
+                dataFinal: dataFinalFormatada
+            })
+            front.send('FEEDBACK_GN', { type: 'success', message: 'Notas Fiscais da Posição Financeira capturadas!' })
 
 
-            resolve(true)
+
         } catch (error) {
-            reject(error)
+            front.send('FEEDBACK_GN')
+
         } finally {
             if (page || browser) {
                 await pupClose({
@@ -84,5 +107,6 @@ export async function capturaGN(event: Event, {
                 })
             }
         }
-    })
+        processing = false
+    }
 }

@@ -72,7 +72,7 @@ interface CapturaGNProps {
     updateGnFilial: (data:UpdateGnFilial)=>void
 }
 
-const initialFeedback = undefined;
+const initialFeedback: FeedbackItemProps[] = [];
 
 const initialFiltersNotasFiscais = {
     range_data: {
@@ -99,7 +99,7 @@ export const useStoreCapturaGN = create<CapturaGNProps>((set) => ({
             status: 'initial',
             filiais: [],
         },
-        feedback: initialFeedback || [],
+        feedback: initialFeedback,
         notasFiscais: {
             filters: {...initialFiltersNotasFiscais},
         },
@@ -114,7 +114,7 @@ export const useStoreCapturaGN = create<CapturaGNProps>((set) => ({
         setState: (newState) => {
             set((prev)=>({ state: {...prev.state, ...newState} }))
         },
-        pushFeedback: (fd:FeedbackItemProps)=>set((state)=>({ feedback: [...state.feedback, fd]})),
+        pushFeedback: (newFeedback:FeedbackItemProps)=>set((state)=>({ feedback: [...state.feedback, newFeedback]})),
         clearFeedback: ()=>set({ feedback: [] }),
 
         setFiltersNotasFiscais: (newFilters)=>set(state=>({ notasFiscais: {...state.notasFiscais, filters: {...state.notasFiscais.filters, ...newFilters}} })),

@@ -1,3 +1,4 @@
+import { TypeSender } from '@/@types/util'
 import { Page } from 'puppeteer'
 
 type LoginGN = {
@@ -7,7 +8,7 @@ type LoginGN = {
         rsa: string
     },
 }
-export async function loginGN({
+export async function loginGN(front: TypeSender, {
     page, credenciais,
 }: LoginGN) {
     return new Promise(async (resolve, reject) => {
@@ -32,6 +33,7 @@ export async function loginGN({
             // await page.click('#signOnButton') 
 
             await new Promise(resolve => setTimeout(resolve, 4000));
+            front.send('FEEDBACK_GN', {type: 'success', text: 'Login realizado! (aparentemente)'})
             resolve(true)
         } catch (error) {
             reject(error)

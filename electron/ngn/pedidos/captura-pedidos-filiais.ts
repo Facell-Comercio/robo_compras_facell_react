@@ -1,6 +1,7 @@
 import { CapturaGNFilial } from '@/@types/filial';
 import { delay } from '../../../electron/helper/delay';
 import { Page } from 'puppeteer';
+import { TypeSender } from '@/@types/util';
 
 export type CapturaPedidosFilial = {
     page: Page,
@@ -8,7 +9,7 @@ export type CapturaPedidosFilial = {
     dataInicial: string,
     dataFinal: string,
 }
-export async function capturaPedidosFiliais({
+export async function capturaPedidosFiliais(front:TypeSender, {
     page,
     filiais,
     dataInicial,
@@ -46,6 +47,7 @@ export async function capturaPedidosFiliais({
 
             const pedidos = []
             for (var f of filiais) {
+                
                 var codSapTim = f['tim_cod_sap'].toString().padStart(10, '0')
 
                 // Insere o código da loja
@@ -61,6 +63,8 @@ export async function capturaPedidosFiliais({
                         return Array.from(columns, column => column.innerText);
                     });
                 });
+                front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${pedidosFilial.length || 0} pedidos da ${f.nome}`})
+                front.send('UPDATE_FILIAL_GN', {...f, pedidos: pedidosFilial.length})
                 pedidos.push({
                     filial: f,
                     pedidos: pedidosFilial
