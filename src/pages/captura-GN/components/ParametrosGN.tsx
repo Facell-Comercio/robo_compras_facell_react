@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { formatDate, subDays } from "date-fns"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
+import { FaSpinner } from "react-icons/fa6"
 import { z } from "zod"
 
 export const ParametrosGN = () => {
@@ -100,9 +101,9 @@ export const ParametrosGN = () => {
         }
     }
     useEffect(() => {
-        if(state.status == 'initial'){
+        if (state.status == 'initial') {
             fetchFiliais()
-            }
+        }
     }, [id_grupo_economico])
 
     const handleImportDataGN = async (data: any) => {
@@ -170,18 +171,23 @@ export const ParametrosGN = () => {
                 // @ts-ignore
                 pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao tentar lançar as solicitações ao financeiro' })
             }
+
+            setState({ status: 'initial'})
         }
     }
 
     // * Handler
     useEffect(() => {
+        // @ts-ignore
         const handleStateGn = (event: Electron.IpcRendererEvent, data: any) => {
             setState(data)
         }
+        // @ts-ignore
         const handleUpdateFilialGn = (event: Electron.IpcRendererEvent, data: any) => {
             updateGnFilial(data)
         }
-        const handleImportData = (event: Electron.IpcRendererEvent, data: any)=>{
+        // @ts-ignore
+        const handleImportData = (event: Electron.IpcRendererEvent, data: any) => {
             handleImportDataGN(data)
         }
 
@@ -269,15 +275,24 @@ export const ParametrosGN = () => {
                                 />
                             </div>
 
+                            {state.status == 'processing' ? (
+                                <Button variant={'warning'} className="flex-1" disabled={true} type="button">
+                                    <FaSpinner size={18} className="animate-spin"/> 
+                                    Processando os dados...
+                                </Button>
 
-                            <div className="flex gap-3">
-                                <Button className="flex-1" disabled={btnIniciarDisabled} type="submit">Iniciar</Button>
-                                <Button className="flex-1" onClick={handleClickParar} disabled={btnPararDisabled} type="button" variant={'destructive'}>Parar</Button>
-                            </div>
+                            ) : (
+                                <div className="flex gap-3">
+                                    <Button className="flex-1" disabled={btnIniciarDisabled} type="submit">Iniciar</Button>
+                                    <Button className="flex-1" onClick={handleClickParar} disabled={btnPararDisabled} type="button" variant={'destructive'}>Parar</Button>
+                                </div>
+
+                            )}
+
                         </div>
                     </form>
                 </Form>
-            </CardContent>
-        </Card>
+            </CardContent >
+        </Card >
     )
 }

@@ -17,6 +17,7 @@ export const FeedbackCapturaGN = () => {
     const clearFeedback = useStoreCapturaGN().clearFeedback;
 
     useEffect(()=>{
+        // @ts-ignore
         const handleFeedback = (event: Electron.IpcRendererEvent, data: any) => {
             pushFeedback(data)
         }

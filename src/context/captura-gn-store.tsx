@@ -5,7 +5,7 @@ import { DateRange } from 'react-day-picker';
 import { create } from 'zustand';
 
 
-  type StatusOptions = 'initial' | 'running';
+  type StatusOptions = 'initial' | 'running' | 'processing';
 
   type StateCapturaGN = {
     status: StatusOptions

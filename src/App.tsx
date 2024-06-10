@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import './App.css'
 import { Toaster } from "./components/ui/toaster";
 import { useAuthStore } from './context/auth-store';

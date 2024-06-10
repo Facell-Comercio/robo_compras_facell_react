@@ -1,4 +1,4 @@
-import {Outlet, Navigate} from 'react-router-dom';
+import { Navigate} from 'react-router-dom';
 import { useAuthStore } from '@/context/auth-store';
 import { useEffect } from 'react';
 import { api } from '@/helper/api';

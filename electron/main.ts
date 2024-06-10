@@ -29,11 +29,13 @@ let win: BrowserWindow | null
 
 function createWindow() {
   win = new BrowserWindow({
-    icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
+    width: 1200,
+    height: 800,
+    icon: path.join(process.env.VITE_PUBLIC, 'facell.ico'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
     },
-    // autoHideMenuBar: true,
+    autoHideMenuBar: true,
     fullscreen: false
   })
 

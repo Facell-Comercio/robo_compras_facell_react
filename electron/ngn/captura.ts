@@ -105,7 +105,7 @@ export async function capturaGN(event: IpcMainEvent, {
             front.send('FEEDBACK_GN', {type: 'error', text: error?.message})
 
         } finally {
-            front.send('STATE_GN', { status: 'initial' })
+            front.send('STATE_GN', { status: 'processing' })
             if (page || browser) {
                 await pupClose({
                     page, browser

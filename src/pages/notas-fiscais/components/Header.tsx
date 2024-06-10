@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "@/components/ui/use-toast"
 import { useStoreCapturaGN } from "@/context/captura-gn-store"
 import { exportToExcel } from "@/helper/importExportXLS"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
 import { Check, DollarSign, Download, EraserIcon, Filter } from "lucide-react"
 import { useState } from "react"
 import { FaSpinner } from "react-icons/fa6"
