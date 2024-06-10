@@ -63,17 +63,14 @@ export async function capturaGN(event: IpcMainEvent, {
             // Login no GN
             await loginGN(front, { page, credenciais })
 
-            var dataInicialArray = data_inicial.toISOString().split('T')[0].split('-')
-            var dataInicialFormatada = dataInicialArray[2] + '/' + dataInicialArray[1] + '/' + dataInicialArray[0]
-            var dataFinalArray = data_final.toISOString().split('T')[0].split('-')
-            var dataFinalFormatada = dataFinalArray[2] + '/' + dataFinalArray[1] + '/' + dataFinalArray[0]
+            
 
             // Captura de Pedidos
             const pedidos = await capturaPedidosFiliais(front, {
                 filiais,
                 page,
-                dataInicial: dataInicialFormatada,
-                dataFinal: dataFinalFormatada
+                data_inicial,
+                data_final
             })
             front.send('FEEDBACK_GN', { type: 'success', message: 'Pedidos capturados!' })
 
@@ -81,26 +78,27 @@ export async function capturaGN(event: IpcMainEvent, {
             const faturados = await capturaFaturadosFiliais(front, {
                 filiais,
                 page,
-                dataInicial: dataInicialFormatada,
-                dataFinal: dataFinalFormatada
+                data_inicial,
+                data_final
             })
             front.send('FEEDBACK_GN', { type: 'success', message: 'Pedidos Faturados capturados!' })
 
             // Captura de Posição Financeira
-            const notas_fiscais = await capturaPosicaoFinanceiraFiliais(front, {
+            const notasFiscais = await capturaPosicaoFinanceiraFiliais(front, {
                 filiais,
-                page,
-                dataInicial: dataInicialFormatada,
-                dataFinal: dataFinalFormatada
+                page
             })
             front.send('FEEDBACK_GN', { type: 'success', message: 'Notas Fiscais da Posição Financeira capturadas!' })
-
+            front.send('DADOS_CAPTURADOS_GN', {
+                pedidos, faturados, notasFiscais
+            })
 
 
         } catch (error) {
             front.send('FEEDBACK_GN')
 
         } finally {
+            front.send('STATE_GN', { status: 'initial' })
             if (page || browser) {
                 await pupClose({
                     page, browser

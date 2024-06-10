@@ -5,9 +5,7 @@ import { Page } from 'puppeteer';
 
 export type CapturaPosicaoFinanceiraFilial = {
     page: Page,
-    filiais: CapturaGNFilial[],
-    dataInicial: string,
-    dataFinal: string,
+    filiais: CapturaGNFilial[]
 }
 export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
     page,
@@ -50,15 +48,15 @@ export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
                         return Array.from(columns, column => column.innerText);
                     });
                 });
-                front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${notasFiscais.length || 0} notas fiscais da ${f.nome}`})
-                front.send('UPDATE_FILIAL_GN', {...f, notas_fiscais: notasFiscais.length})
+                front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${notasFiscaisFilial.length || 0} notas fiscais da ${f.nome}`})
+                front.send('UPDATE_FILIAL_GN', {id: f.id, notasFiscais: notasFiscaisFilial.length})
                 notasFiscais.push({
-                    filial: f,
+                    ...f,
                     notasFiscais: notasFiscaisFilial
                 })
             }
 
-            resolve(true)
+            resolve(notasFiscais)
         } catch (error) {
             reject(error)
         }

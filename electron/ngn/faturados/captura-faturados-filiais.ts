@@ -6,14 +6,14 @@ import { Page } from 'puppeteer';
 export type CapturaFaturadosFilial = {
     page: Page,
     filiais: CapturaGNFilial[],
-    dataInicial: string,
-    dataFinal: string,
+    data_inicial: Date,
+    data_final: Date,
 }
 export async function capturaFaturadosFiliais(front:TypeSender, {
     page,
     filiais,
-    dataInicial,
-    dataFinal
+    data_inicial,
+    data_final
 }: CapturaFaturadosFilial) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -34,15 +34,19 @@ export async function capturaFaturadosFiliais(front:TypeSender, {
             if(!targetFrame){
                 throw new Error("Não foi possível localizar a área de pedidos!")
             }
+            var dataInicialArray = data_inicial.toISOString().split('T')[0].split('-')
+            var dataInicialFormatada = dataInicialArray[2] + '/' + dataInicialArray[1] + '/' + dataInicialArray[0]
+            var dataFinalArray = data_final.toISOString().split('T')[0].split('-')
+            var dataFinalFormatada = dataFinalArray[2] + '/' + dataFinalArray[1] + '/' + dataFinalArray[0]
 
             // @ts-ignore
             await targetFrame.$eval('#ctl06_txtDataInicio', el => el.value = '');
             // @ts-ignore
             await targetFrame.$eval('#ctl06_txtDataFim', el => el.value = '');
             // insere data inicial
-            await targetFrame.type('#ctl06_txtDataInicio', dataInicial)
+            await targetFrame.type('#ctl06_txtDataInicio', dataInicialFormatada)
             // insere data final 
-            await targetFrame.type('#ctl06_txtDataFim', dataFinal)
+            await targetFrame.type('#ctl06_txtDataFim', dataFinalFormatada)
 
 
             const faturados = []
@@ -63,15 +67,17 @@ export async function capturaFaturadosFiliais(front:TypeSender, {
                     });
                 });
                 front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${faturadosFilial.length || 0} faturados da ${f.nome}`})
-                front.send('UPDATE_FILIAL_GN', {...f, faturados: faturadosFilial.length})
+                front.send('UPDATE_FILIAL_GN', {id: f.id, faturados: faturadosFilial.length})
 
                 faturados.push({
                     filial: f,
+                    data_inicial,
+                    data_final,
                     faturados: faturadosFilial
                 })
             }
 
-            resolve(true)
+            resolve(faturados)
         } catch (error) {
             reject(error)
         }

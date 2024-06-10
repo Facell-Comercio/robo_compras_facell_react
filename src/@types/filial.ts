@@ -8,7 +8,7 @@ export type Filial = {
 export type CapturaGNFilial = Filial & {
     pedidos: number,
     faturados: number,
-    notas_fiscais: number,
+    notasFiscais: number,
     status: 'PENDENTE' | 'ERRO' | 'OK',
     obs: string,
     

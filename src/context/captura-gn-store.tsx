@@ -114,7 +114,11 @@ export const useStoreCapturaGN = create<CapturaGNProps>((set) => ({
         setState: (newState) => {
             set((prev)=>({ state: {...prev.state, ...newState} }))
         },
-        pushFeedback: (newFeedback:FeedbackItemProps)=>set((state)=>({ feedback: [...state.feedback, newFeedback]})),
+        pushFeedback: (newFeedback:FeedbackItemProps)=>set((state)=>{
+            let feedbacks = state.feedback
+            feedbacks.unshift(newFeedback)
+            return ({ feedback: [...feedbacks]})
+        }),
         clearFeedback: ()=>set({ feedback: [] }),
 
         setFiltersNotasFiscais: (newFilters)=>set(state=>({ notasFiscais: {...state.notasFiscais, filters: {...state.notasFiscais.filters, ...newFilters}} })),
@@ -129,7 +133,7 @@ export const useStoreCapturaGN = create<CapturaGNProps>((set) => ({
         updateGnFilial(data) {
             set(prev=>({
                 state: {...prev.state, filiais: prev.state.filiais.map((filial) =>
-                    filial.id === data.id ? { ...filial, ...data } : filial
+                    filial.id == data.id ? { ...filial, ...data } : filial
                   )}, 
             }))
         },

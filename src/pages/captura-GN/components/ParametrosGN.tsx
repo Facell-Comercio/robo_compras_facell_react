@@ -1,4 +1,7 @@
 import { getFiliais } from "@/api/filiais"
+import { importNotasFiscais, pushCheckDatasys, pushCheckFinanceiro } from "@/api/notas-fiscais"
+import { importPedidos } from "@/api/pedidos"
+import { importFaturados } from "@/api/pedidos-faturados"
 import { FormInput } from "@/components/custom/FormInput"
 import { FormSelect } from "@/components/custom/FormSelect"
 import { Button } from "@/components/ui/button"
@@ -22,6 +25,7 @@ export const ParametrosGN = () => {
     const state = useStoreCapturaGN().state;
     const setState = useStoreCapturaGN().setState;
     const updateGnFilial = useStoreCapturaGN().updateGnFilial;
+    const pushFeedback = useStoreCapturaGN().pushFeedback
 
     const formSchema = z.object({
         id_grupo_economico: z.string(),
@@ -82,7 +86,7 @@ export const ParametrosGN = () => {
                     ...f,
                     pedidos: 0,
                     faturados: 0,
-                    notas_fiscais: 0,
+                    notasFiscais: 0,
                     status: 'PENDENTE',
                     obs: ''
                 }))
@@ -100,6 +104,68 @@ export const ParametrosGN = () => {
         console.log('Fech filiais')
     }, [id_grupo_economico])
 
+    const handleImportDataGN = async (data: any) => {
+        setState({ status: 'running' })
+
+        if (data.pedidos) {
+            // * Importar os pedidos
+            try {
+                await importPedidos(data.pedidos)
+                pushFeedback({ type: 'success', text: 'Pedidos importados com sucesso!' })
+            } catch (error) {
+                // @ts-ignore
+                pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao importar pedidos' })
+            }
+        }
+
+        if (data.faturados) {
+            // * Importar os faturados
+            try {
+                await importFaturados(data.faturados)
+                pushFeedback({ type: 'success', text: 'Faturados importados com sucesso!' })
+            } catch (error) {
+                // @ts-ignore
+                pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao importar faturados' })
+            }
+        }
+
+        if (data.notasFiscais) {
+            // * Importar as notas fiscais
+            try {
+                await importNotasFiscais(data.notasFiscais)
+                pushFeedback({ type: 'success', text: 'Posição Financeira importada com sucesso!' })
+            } catch (error) {
+                // @ts-ignore
+                pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao importar faturados' })
+            }
+
+            // * Solicitar o check Datasys
+            try {
+                await pushCheckDatasys({ id_grupo_economico })
+                pushFeedback({ type: 'success', text: 'Checagem de recebimento Datasys realizada, agora vamos lançar as solicitações de pagamento ao financeiro!' })
+            } catch (error) {
+                // @ts-ignore
+                pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao checar o fiscal do Datasys' })
+            }
+
+            // * Solicitar o lançamento Financeiro
+            try {
+                await pushCheckFinanceiro({ id_grupo_economico })
+                pushFeedback({ type: 'success', text: 'Lançamentos no financeiro realizados!' })
+            } catch (error) {
+                // @ts-ignore
+                pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao tentar lançar as solicitações ao financeiro' })
+            }
+        }
+
+        // Emitir o toast de sucesso!
+        toast({
+            variant: 'success', title: 'Processo finalizado!', description: 'Verifique os feedbacks para entender se houve erros..'
+        })
+        setState({ status: 'initial' })
+    }
+
+    // * Handler
     useEffect(() => {
         const handleStateGn = (event: Electron.IpcRendererEvent, data: any) => {
             setState(data)
@@ -107,13 +173,18 @@ export const ParametrosGN = () => {
         const handleUpdateFilialGn = (event: Electron.IpcRendererEvent, data: any) => {
             updateGnFilial(data)
         }
+        const handleImportData = (event: Electron.IpcRendererEvent, data: any)=>{
+            handleImportDataGN(data)
+        }
 
         window.ipcRenderer.on('STATE_GN', handleStateGn)
         window.ipcRenderer.on('UPDATE_FILIAL_GN', handleUpdateFilialGn)
+        window.ipcRenderer.on('DADOS_CAPTURADOS_GN', handleImportData)
 
         return () => {
             window.ipcRenderer.off('STATE_GN', handleStateGn)
             window.ipcRenderer.off('UPDATE_FILIAL_GN', handleUpdateFilialGn)
+            window.ipcRenderer.off('DADOS_CAPTURADOS_GN', handleImportData)
         }
     }, [])
 

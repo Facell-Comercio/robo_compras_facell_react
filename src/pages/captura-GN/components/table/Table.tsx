@@ -20,7 +20,7 @@ export const TableCapturaGN = () => {
             accessorKey: 'faturados'
         },
         {
-            accessorKey: 'notas_fiscais',
+            accessorKey: 'notasFiscais',
             header: 'POSIÇÃO FINANCEIRA'
         },
         {

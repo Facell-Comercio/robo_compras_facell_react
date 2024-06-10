@@ -1,19 +1,28 @@
-import { getNotasFiscais } from "@/api/notas-fiscais"
+import { getNotasFiscais, pushCheckDatasys, pushCheckFinanceiro } from "@/api/notas-fiscais"
 import { Button } from "@/components/ui/button"
 import { DatePickerWithRange } from "@/components/ui/date-range"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
 import { useStoreCapturaGN } from "@/context/captura-gn-store"
 import { exportToExcel } from "@/helper/importExportXLS"
-import { useQueryClient } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { Check, DollarSign, Download, EraserIcon, Filter } from "lucide-react"
+import { useState } from "react"
+import { FaSpinner } from "react-icons/fa6"
 
 export const Header = () => {
+  const queryClient = useQueryClient()
+
   const filters = useStoreCapturaGN(state => state.notasFiscais.filters);
   const setFilters = useStoreCapturaGN(state => state.setFiltersNotasFiscais)
   const clearFilters = useStoreCapturaGN(state => state.clearFiltersNotasFiscais)
 
-  const queryClient = useQueryClient()
+  const [fetching, setFetching] = useState({
+    datasys: false,
+    financeiro: false
+  })
+
+
 
   const handleFilter = () => {
     queryClient.invalidateQueries({
@@ -45,17 +54,45 @@ export const Header = () => {
   }
 
   const handleDatasysClick = async () => {
-
+    try {
+      setFetching(prev=>({...prev, 
+        datasys: true,
+      }))
+      await pushCheckDatasys({})
+      queryClient.invalidateQueries({queryKey: ['notas_fiscais']})
+    } catch (error) {
+      toast({
+        variant: 'destructive', title: 'Erro na operação',
+        // @ts-ignore 
+        description: error?.response?.data?.message || 'Erro na conexão, tente novamente mais tarde.'
+      })
+    } finally{
+      setFetching(prev=>({...prev, datasys: false}))
+    }
   }
 
   const handleFinanceiroClick = async () => {
-
+    try {
+      setFetching(prev=>({...prev, 
+        financeiro: true,
+      }))
+      await pushCheckFinanceiro({})
+      queryClient.invalidateQueries({queryKey: ['notas_fiscais']})
+    } catch (error) {
+      toast({
+        variant: 'destructive', title: 'Erro na operação',
+        // @ts-ignore 
+        description: error?.response?.data?.message || 'Erro na conexão, tente novamente mais tarde.'
+      })
+    } finally{
+      setFetching(prev=>({...prev, financeiro: false}))
+    }
   }
 
   return (
     <div className="flex gap-3 items-center overflow-auto scroll-thin pb-2">
-      <Button onClick={handleDatasysClick} size={'sm'} variant={'default'} className="flex gap-2 items-center"><Check size={18} /> Checar Datasys</Button>
-      <Button onClick={handleFinanceiroClick} size={'sm'} variant={'tertiary'} className="flex gap-2 items-center"><DollarSign size={18} /> Lançar Financeiro</Button>
+      <Button disabled={fetching.datasys} onClick={handleDatasysClick} size={'sm'} variant={'default'} className="flex gap-2 items-center">{fetching.datasys ? <FaSpinner className="animate-spin" size={18}/> : <Check size={18} />} Checar Datasys</Button>
+      <Button disabled={fetching.financeiro} onClick={handleFinanceiroClick} size={'sm'} variant={'tertiary'} className="flex gap-2 items-center">{fetching.financeiro ? <FaSpinner className="animate-spin" size={18}/> : <DollarSign size={18} />} Lançar Financeiro</Button>
 
       <Button onClick={handleClickExport} size={'sm'} variant={'success'} className="flex gap-2 items-center"><Download size={18} /> Exportar</Button>
       <Button onClick={handleFilter} size={'sm'} className="flex gap-2 items-center"><Filter size={18} /> Filtrar</Button>

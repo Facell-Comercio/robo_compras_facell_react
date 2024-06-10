@@ -37,7 +37,7 @@ export const FeedbackCapturaGN = () => {
                     {
                     feedback.length === 0 ? '...' :
                     feedback?.map((feedback, index)=>(
-                        <FeedbackItem key={index} type={feedback.type} text={feedback.text} />
+                        <FeedbackItem key={index} type={feedback?.type || 'error'} text={feedback?.text || ''} />
                     ))}
                 </ScrollArea>
                 <Button className="justify-self-start self-end" onClick={clearFeedback} size={'sm'}  variant={'secondary'}>Limpar</Button>

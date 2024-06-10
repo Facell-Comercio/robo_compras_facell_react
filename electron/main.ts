@@ -34,7 +34,7 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.mjs'),
     },
     // autoHideMenuBar: true,
-    fullscreen: true
+    fullscreen: false
   })
 
   // win.webContents.openDevTools();
