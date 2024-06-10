@@ -172,7 +172,7 @@ export const ParametrosGN = () => {
                 pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao tentar lançar as solicitações ao financeiro' })
             }
 
-            setState({ status: 'initial'})
+            setState({ status: 'initial' })
         }
     }
 
@@ -276,10 +276,12 @@ export const ParametrosGN = () => {
                             </div>
 
                             {state.status == 'processing' ? (
-                                <Button variant={'warning'} className="flex-1" disabled={true} type="button">
-                                    <FaSpinner size={18} className="animate-spin"/> 
-                                    Processando os dados...
-                                </Button>
+                                <div className="flex gap-3">
+                                    <Button variant={'warning'} className="flex-1" disabled={true} type="button">
+                                        <FaSpinner size={18} className="animate-spin" />
+                                        Processando os dados...
+                                    </Button>
+                                </div>
 
                             ) : (
                                 <div className="flex gap-3">

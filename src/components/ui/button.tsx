@@ -14,7 +14,7 @@ const buttonVariants = cva(
         success:
           "bg-green-500 dark:bg-green-600 text-success-foreground hover:opacity-90",
         warning:
-          "bg-warning text-primary-foreground hover:opacity-90",
+          "bg-orange-500 dark:bg-orange-600 text-orange-100 hover:opacity-90",
         destructive:
           "bg-destructive text-destructive-foreground dark:text-white hover:bg-destructive/90",
         outline:

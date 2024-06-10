@@ -83,7 +83,7 @@ export async function capturaFaturadosFiliais(front:TypeSender, {
                 front.send('UPDATE_FILIAL_GN', {id: f.id, faturados: faturadosFilial.length})
 
                 faturados.push({
-                    filial: f,
+                    ...f,
                     data_inicial,
                     data_final,
                     faturados: faturadosFilial
