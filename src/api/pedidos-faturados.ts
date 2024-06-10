@@ -5,7 +5,5 @@ export const getPedidosFaturados = async (params:any)=>{
 }
 
 export const importFaturados = async (params:any)=>{
-    return api.post('/tim/gn/faturados/', {
-        ...params
-    })
+    return api.post('/tim/gn/faturados/', params)
 }

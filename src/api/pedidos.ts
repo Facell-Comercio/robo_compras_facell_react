@@ -5,7 +5,5 @@ export const getPedidos = async (params:any)=>{
 }
 
 export const importPedidos = async (params:any)=>{
-    return api.post('/tim/gn/pedidos/', {
-        ...params
-    })
+    return api.post('/tim/gn/pedidos/', params)
 }

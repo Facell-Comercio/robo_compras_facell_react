@@ -53,6 +53,19 @@ export async function capturaFaturadosFiliais(front:TypeSender, {
             for (var f of filiais) {
                 var codSapTim = f['tim_cod_sap'].toString().padStart(10, '0')
 
+                const codSapTimExistis = await targetFrame.evaluate((codSap) => {
+                    const options = document.querySelectorAll('#ctl06_ddlClientes option');
+                    // @ts-ignore
+                    const indexCodSap = Array.from(options).findIndex(op => op.value.includes(String(codSap)))
+                    return indexCodSap !== -1;
+                }, f['tim_cod_sap']);
+
+                if (!codSapTimExistis) {
+                    front.send('FEEDBACK_GN', { type: 'success', text: `${f.nome} não existe no GN então pulamos..` })
+                    front.send('UPDATE_FILIAL_GN', { id: f.id, faturados: 0 })
+                    continue;
+                }
+
                 // Insere o código da loja
                 await targetFrame.select('#ctl06_ddlClientes', codSapTim)
     

@@ -54,6 +54,20 @@ export async function capturaPedidosFiliais(front:TypeSender, {
                 
                 var codSapTim = f['tim_cod_sap'].toString().padStart(10, '0')
 
+                const codSapTimExistis = await targetFrame.evaluate((codSap) => {
+                    const options = document.querySelectorAll('#ctl06_ddlClientes option');
+                    const indexCodSap = Array.from(options).findIndex(op => {
+                        // @ts-ignore
+                        return op.value.includes(String(codSap))
+                    })
+                    return indexCodSap !== -1;
+                }, f['tim_cod_sap']);
+
+                if (!codSapTimExistis) {
+                    front.send('FEEDBACK_GN', { type: 'success', text: `${f.nome} não existe no GN então pulamos..` })
+                    front.send('UPDATE_FILIAL_GN', { id: f.id, faturados: 0 })
+                    continue;
+                }
                 // Insere o código da loja
                 await targetFrame.select('#ctl06_ddlClientes', codSapTim)
     

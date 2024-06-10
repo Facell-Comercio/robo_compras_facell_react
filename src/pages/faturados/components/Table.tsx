@@ -10,14 +10,14 @@ import { useState } from "react"
 
 type Faturado = {
   id: number,
-  dtCriacao: Date,
-  codSapTim: number,
+  data_criacao: Date,
+  tim_cod_sap: number,
   pedido: string,
-  codMaterial: string,
+  cod_material: string,
   descricao: string,
   qtde: number,
-  valUnit: number,
-  valTotal: number,
+  valor_unitario: number,
+  valor_total: number,
   grupo_economico: string,
   id_grupo_economico: number,
   filial: string,
@@ -34,7 +34,7 @@ export const Table = () => {
 
   const columns: ColumnDef<Faturado>[] = [
     {
-      accessorKey: "dtCriacao",
+      accessorKey: "data_criacao",
       header: 'DATA CRIAÇÃO',
       cell: (info) => (
         <span>{formatDate(info.getValue<Date>(), 'dd/MM/yyyy')}</span>
@@ -50,7 +50,7 @@ export const Table = () => {
       accessorKey: 'pedido'
     },
     {
-      accessorKey: 'codMaterial',
+      accessorKey: 'cod_material',
       header: 'CÓD. MATERIAL'
     },
     {
@@ -61,7 +61,7 @@ export const Table = () => {
       header: 'QTDE'
     },
     {
-      accessorKey: 'valUnit',
+      accessorKey: 'valor_unitario',
       header: 'VALOR UND',
       cell: (info)=>{
         let val = info.getValue<number>()
@@ -69,7 +69,7 @@ export const Table = () => {
       }
     },
     {
-      accessorKey: 'valTotal',
+      accessorKey: 'valor_total',
       header: 'VALOR TOTAL',
       cell: (info)=>{
         let val = info.getValue<number>()

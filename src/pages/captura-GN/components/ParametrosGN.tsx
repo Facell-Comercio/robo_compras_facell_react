@@ -100,17 +100,19 @@ export const ParametrosGN = () => {
         }
     }
     useEffect(() => {
-        fetchFiliais()
-        console.log('Fech filiais')
+        if(state.status == 'initial'){
+            fetchFiliais()
+            }
     }, [id_grupo_economico])
 
     const handleImportDataGN = async (data: any) => {
-        setState({ status: 'running' })
-
         if (data.pedidos) {
             // * Importar os pedidos
             try {
                 await importPedidos(data.pedidos)
+                toast({
+                    variant: 'success', title: 'Pedidos importados!'
+                })
                 pushFeedback({ type: 'success', text: 'Pedidos importados com sucesso!' })
             } catch (error) {
                 // @ts-ignore
@@ -122,6 +124,9 @@ export const ParametrosGN = () => {
             // * Importar os faturados
             try {
                 await importFaturados(data.faturados)
+                toast({
+                    variant: 'success', title: 'Faturados importados!'
+                })
                 pushFeedback({ type: 'success', text: 'Faturados importados com sucesso!' })
             } catch (error) {
                 // @ts-ignore
@@ -133,6 +138,9 @@ export const ParametrosGN = () => {
             // * Importar as notas fiscais
             try {
                 await importNotasFiscais(data.notasFiscais)
+                toast({
+                    variant: 'success', title: 'Posição financeira importada!'
+                })
                 pushFeedback({ type: 'success', text: 'Posição Financeira importada com sucesso!' })
             } catch (error) {
                 // @ts-ignore
@@ -142,6 +150,9 @@ export const ParametrosGN = () => {
             // * Solicitar o check Datasys
             try {
                 await pushCheckDatasys({ id_grupo_economico })
+                toast({
+                    variant: 'success', title: 'Checagem de Recebimento Datasys Realizada!'
+                })
                 pushFeedback({ type: 'success', text: 'Checagem de recebimento Datasys realizada, agora vamos lançar as solicitações de pagamento ao financeiro!' })
             } catch (error) {
                 // @ts-ignore
@@ -151,18 +162,15 @@ export const ParametrosGN = () => {
             // * Solicitar o lançamento Financeiro
             try {
                 await pushCheckFinanceiro({ id_grupo_economico })
+                toast({
+                    variant: 'success', title: 'Lançamentos no financeiro realizados!'
+                })
                 pushFeedback({ type: 'success', text: 'Lançamentos no financeiro realizados!' })
             } catch (error) {
                 // @ts-ignore
                 pushFeedback({ type: 'error', text: error?.response?.data?.message || error?.message || 'Erro ao tentar lançar as solicitações ao financeiro' })
             }
         }
-
-        // Emitir o toast de sucesso!
-        toast({
-            variant: 'success', title: 'Processo finalizado!', description: 'Verifique os feedbacks para entender se houve erros..'
-        })
-        setState({ status: 'initial' })
     }
 
     // * Handler

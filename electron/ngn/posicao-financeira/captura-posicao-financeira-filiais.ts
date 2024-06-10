@@ -7,7 +7,7 @@ export type CapturaPosicaoFinanceiraFilial = {
     page: Page,
     filiais: CapturaGNFilial[]
 }
-export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
+export async function capturaPosicaoFinanceiraFiliais(front: TypeSender, {
     page,
     filiais,
 }: CapturaPosicaoFinanceiraFilial) {
@@ -27,7 +27,7 @@ export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
                     break;
                 }
             }
-            if(!targetFrame){
+            if (!targetFrame) {
                 throw new Error("Não foi possível localizar a área de pedidos!")
             }
 
@@ -35,12 +35,25 @@ export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
             for (var f of filiais) {
                 var codSapTim = f['tim_cod_sap'].toString().padStart(10, '0')
 
+                const codSapTimExistis = await targetFrame.evaluate((codSap) => {
+                    const options = document.querySelectorAll('#ctl06_ddlClientes option');
+                    // @ts-ignore
+                    const indexCodSap = Array.from(options).findIndex(op => op.value.includes(String(codSap)))
+                    return indexCodSap !== -1;
+                }, f['tim_cod_sap']);
+
+                if (!codSapTimExistis) {
+                    front.send('FEEDBACK_GN', { type: 'success', text: `${f.nome} não existe no GN então pulamos..` })
+                    front.send('UPDATE_FILIAL_GN', { id: f.id, notasFiscais: 0 })
+                    continue;
+                }
+
                 // Insere o código da loja
                 await targetFrame.select('#ctl06_ddlClientes', codSapTim)
-    
+
                 await Promise.all([targetFrame.click('#ctl06_btnPesquisar'), targetFrame.waitForNavigation()])
                 await delay(2000);
-    
+
                 const notasFiscaisFilial = await targetFrame.evaluate(() => {
                     const rows = document.querySelectorAll('#ctl06_grdReport tbody tr');
                     return Array.from(rows, row => {
@@ -48,8 +61,8 @@ export async function capturaPosicaoFinanceiraFiliais(front:TypeSender, {
                         return Array.from(columns, column => column.innerText);
                     });
                 });
-                front.send('FEEDBACK_GN', {type: 'success', text:`Coletamos ${notasFiscaisFilial.length || 0} notas fiscais da ${f.nome}`})
-                front.send('UPDATE_FILIAL_GN', {id: f.id, notasFiscais: notasFiscaisFilial.length})
+                front.send('FEEDBACK_GN', { type: 'success', text: `Coletamos ${notasFiscaisFilial.length || 0} notas fiscais da ${f.nome}` })
+                front.send('UPDATE_FILIAL_GN', { id: f.id, notasFiscais: notasFiscaisFilial.length })
                 notasFiscais.push({
                     ...f,
                     notasFiscais: notasFiscaisFilial

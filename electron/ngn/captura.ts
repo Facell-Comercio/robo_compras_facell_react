@@ -72,7 +72,10 @@ export async function capturaGN(event: IpcMainEvent, {
                 data_inicial,
                 data_final
             })
-            front.send('FEEDBACK_GN', { type: 'success', message: 'Pedidos capturados!' })
+            front.send('DADOS_CAPTURADOS_GN', {
+                pedidos
+            })
+            front.send('FEEDBACK_GN', { type: 'success', text: 'Pedidos capturados!' })
 
             // Captura de Faturados
             const faturados = await capturaFaturadosFiliais(front, {
@@ -81,21 +84,25 @@ export async function capturaGN(event: IpcMainEvent, {
                 data_inicial,
                 data_final
             })
-            front.send('FEEDBACK_GN', { type: 'success', message: 'Pedidos Faturados capturados!' })
+            front.send('DADOS_CAPTURADOS_GN', {
+                faturados
+            })
+            front.send('FEEDBACK_GN', { type: 'success', text: 'Pedidos Faturados capturados!' })
 
             // Captura de Posição Financeira
             const notasFiscais = await capturaPosicaoFinanceiraFiliais(front, {
                 filiais,
                 page
             })
-            front.send('FEEDBACK_GN', { type: 'success', message: 'Notas Fiscais da Posição Financeira capturadas!' })
+            front.send('FEEDBACK_GN', { type: 'success', text: 'Notas Fiscais da Posição Financeira capturadas!' })
             front.send('DADOS_CAPTURADOS_GN', {
-                pedidos, faturados, notasFiscais
+                notasFiscais
             })
 
 
         } catch (error) {
-            front.send('FEEDBACK_GN')
+            // @ts-ignore
+            front.send('FEEDBACK_GN', {type: 'error', text: error?.message})
 
         } finally {
             front.send('STATE_GN', { status: 'initial' })

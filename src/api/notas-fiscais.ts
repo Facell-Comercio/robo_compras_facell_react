@@ -16,7 +16,5 @@ export const pushCheckFinanceiro = async (params:any)=>{
 }
 
 export const importNotasFiscais = async (params:any)=>{
-    return api.post('/tim/gn/notas-fiscais/', {
-        ...params
-    })
+    return api.post('/tim/gn/notas-fiscais/', params)
 }

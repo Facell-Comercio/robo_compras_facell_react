@@ -9,13 +9,13 @@ import { useState } from "react"
 
 type Pedido = {
   id: number,
-  dataPedido: Date,
-  codSapTim: number,
+  data_pedido: Date,
+  tim_cod_sap: number,
   pedido: string,
-  codMaterial: string,
+  cod_material: string,
   descricao: string,
-  qtdeSolicitada: number,
-  qtdeAtendida: number,
+  qtde_solicitada: number,
+  qtde_atendida: number,
   status: string,
   grupo_economico: string,
   filial: string,
@@ -31,7 +31,7 @@ export const Table = () => {
 
   const columns: ColumnDef<Pedido>[] = [
     {
-      accessorKey: "dataPedido",
+      accessorKey: "data_pedido",
       header: 'DATA PEDIDO',
       cell: (info) => (
         <span>{formatDate(info.getValue<Date>(), 'dd/MM/yyyy')}</span>
@@ -47,18 +47,18 @@ export const Table = () => {
       accessorKey: 'pedido'
     },
     {
-      accessorKey: 'codMaterial',
+      accessorKey: 'cod_material',
       header: 'CÓD. MATERIAL'
     },
     {
       accessorKey: 'descricao'
     },
     {
-      accessorKey: 'qtdeSolicitada',
+      accessorKey: 'qtde_solicitada',
       header: 'SOLICITADO'
     },
     {
-      accessorKey: 'qtdeAtendida',
+      accessorKey: 'qtde_atendida',
       header: 'ATENDIDO'
     },
     {
